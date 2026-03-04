@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Команда — Radiate Radiactivity</title>
+
+<style>
+  :root{
+    --bg:#05080d;
+    --accent:#ff8a4b;
+    --accent-2:#d86bff;
+    --muted:#dff6ff;
+    --soft: 0.42s;
+  }
+
+  html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--muted)}
+  h1{margin:22px 0 8px;font-size:34px;color:var(--accent-2);text-align:center;text-shadow:0 0 12px rgba(216,107,255,0.08)}
+
+  /* Top-left separate Home button */
+  .top-left {
+    position:fixed;
+    left:18px;
+    top:18px;
+    z-index:90;
+  }
+  .home-small {
+    padding:10px 14px;
+    border-radius:10px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+    color:var(--muted);
+    border:1px solid rgba(255,255,255,0.03);
+    cursor:pointer;
+    font-weight:700;
+    box-shadow:0 10px 30px rgba(0,0,0,0.6);
+  }
+
+  /* Area */
+  .team-area{
+    position:relative;
+    width:100%;
+    max-width:1200px;
+    margin:80px auto 80px;
+    height:640px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  /* Arrows overlay */
+  .arrow{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    z-index:70;
+    color:var(--accent-2);
+    font-size:48px;
+    width:72px;height:72px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;border-radius:12px;
+    transition:all 220ms ease;user-select:none;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+    border:1px solid rgba(255,255,255,0.03);
+    box-shadow:0 10px 30px rgba(0,0,0,0.6);
+  }
+  .arrow:hover{ transform:translateY(-50%) scale(1.06); color:var(--accent) }
+  .arrow.left{ left:28px }
+  .arrow.right{ right:28px }
+
+  /* Mini cards (styled) */
+  .bg-mini{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%) scale(0.86);
+    width:220px;height:320px;border-radius:14px;
+    display:flex;flex-direction:column;align-items:center;padding:16px;gap:12px;
+    z-index:30;transition:transform var(--soft) ease, opacity var(--soft) ease, filter var(--soft) ease;
+    background: linear-gradient(180deg, rgba(6,8,12,0.6), rgba(6,8,12,0.5));
+    border:1px solid rgba(255,255,255,0.03);
+    box-shadow:0 10px 30px rgba(216,107,255,0.03);
+    backdrop-filter: blur(4px);
+  }
+  .bg-mini img{ width:160px;height:160px;border-radius:12px;object-fit:cover;border:2px solid rgba(255,255,255,0.03); box-shadow:0 6px 20px rgba(216,107,255,0.04); transition:transform var(--soft) ease, filter var(--soft) ease }
+  .bg-mini .mini-name{ font-size:16px;color:#fff; text-shadow:0 0 6px rgba(216,107,255,0.04) }
+
+  .bg-left{ left:6%; opacity:0.55; filter: hue-rotate(6deg) saturate(1.05) blur(1px) drop-shadow(0 8px 20px rgba(216,107,255,0.02)) }
+  .bg-right{ right:6%; opacity:0.55; filter: hue-rotate(6deg) saturate(1.05) blur(1px) drop-shadow(0 8px 20px rgba(216,107,255,0.02)) }
+
+  /* Main vertical card */
+  .member-card{
+    width:420px; min-height:560px; border-radius:16px; background:linear-gradient(180deg, rgba(6,8,12,0.96), rgba(10,12,16,0.96));
+    border:1px solid rgba(255,255,255,0.03); box-shadow:0 30px 60px rgba(0,0,0,0.6), 0 0 40px rgba(216,107,255,0.03);
+    padding:28px; display:flex;flex-direction:column;align-items:center;gap:18px; z-index:50;
+    transition: transform 420ms cubic-bezier(.2,.9,.2,1), box-shadow 320ms ease, border-color 320ms ease;
+  }
+  .member-card:hover{ transform: translateY(-6px) scale(1.01); box-shadow:0 40px 90px rgba(0,0,0,0.7); border-color: rgba(216,107,255,0.08) }
+
+  .member-photo{ width:300px;height:300px;border-radius:14px;object-fit:cover;border:3px solid rgba(255,255,255,0.03); box-shadow:0 18px 40px rgba(216,107,255,0.04); transition: transform var(--soft) ease }
+  .member-name{ font-size:30px;color:var(--accent);margin-top:6px;text-shadow:0 0 14px rgba(216,107,255,0.06) }
+  .member-role{ font-size:14px;color:var(--accent-2); margin-top:-6px; opacity:0.95 }
+  .member-desc{ font-size:16px;color:#dff6ff; line-height:1.45; padding:0 6px; text-align:center; max-height:140px; overflow:auto }
+
+  .controls { display:flex; gap:12px; margin-top:6px }
+  .about-btn, .home-btn {
+    padding:10px 18px; border-radius:10px; border:none; cursor:pointer; font-weight:700;
+  }
+  .about-btn { background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#041018; box-shadow:0 10px 30px rgba(216,107,255,0.06) }
+  .home-btn { background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.03) }
+
+  /* Modal */
+  .modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:90; background: linear-gradient(180deg, rgba(2,6,10,0.6), rgba(2,6,10,0.85)); backdrop-filter: blur(6px) }
+  .modal.open{ display:flex }
+  .modal-card{ width:min(920px,94%); max-height:86vh; overflow:auto; border-radius:14px; padding:28px; background: linear-gradient(180deg, rgba(8,12,16,0.98), rgba(12,18,24,0.98)); border:1px solid rgba(255,255,255,0.03); box-shadow:0 40px 120px rgba(0,0,0,0.7); position:relative }
+  .modal-close{ position:absolute; top:18px; right:20px; font-size:22px; color:var(--accent-2); cursor:pointer }
+  .modal-header{ display:flex; gap:18px; align-items:center; margin-bottom:12px }
+  .modal-photo{ width:120px;height:120px;border-radius:12px;object-fit:cover;border:2px solid rgba(255,255,255,0.03) }
+  .modal-title{ font-size:24px; color:var(--accent) }
+  .modal-role{ color:var(--accent-2); font-size:14px; margin-top:4px }
+  .modal-body{ color:#dff6ff; line-height:1.6; margin-top:12px; font-size:15px; white-space:pre-line }
+
+  /* Responsive */
+  @media (max-width:980px){
+    .bg-left{ left:2% }
+    .bg-right{ right:2% }
+    .member-card{ width:360px }
+    .member-photo{ width:240px;height:240px }
+  }
+  @media (max-width:720px){
+    .team-area{ height:auto; padding:40px 12px; flex-direction:column; gap:18px }
+    .bg-left, .bg-right{ display:none }
+    .arrow.left{ left:8px; top:auto; bottom:18px; transform:none }
+    .arrow.right{ right:8px; top:auto; bottom:18px; transform:none }
+    .arrow{ font-size:36px; width:56px;height:56px }
+    .member-card{ position:relative; transform:none }
+    .top-left{ left:12px; top:12px }
+  }
+</style>
+</head>
+<body>
+
+<!-- Home button top-left -->
+<div class="top-left">
+  <button class="home-small" onclick="location.href='index.html'">← На главную</button>
+</div>
+
+<h1>Наша команда</h1>
+
+<div class="team-area" role="region" aria-label="Команда Radiate Radiactivity">
+
+  <!-- arrows -->
+  <div class="arrow left" id="prevBtn" aria-label="Предыдущий">❮</div>
+  <div class="arrow right" id="nextBtn" aria-label="Следующий">❯</div>
+
+  <!-- mini cards -->
+  <div class="bg-mini bg-left" id="miniLeft" aria-hidden="true">
+    <img src="img/a1ryspace_logo.png" alt="A1ryspace">
+    <div class="mini-name">A1ryspace</div>
+  </div>
+
+  <div class="bg-mini bg-right" id="miniRight" aria-hidden="true">
+    <img src="img/valeriy.png" alt="Valeriy">
+    <div class="mini-name">Valeriy</div>
+  </div>
+
+  <!-- main card -->
+  <div class="member-card" id="mainCard" role="article" aria-label="Профиль участника">
+    <img src="img/matvey_logo.png" class="member-photo" id="mainPhoto" alt="Mat1yha_">
+    <div class="member-name" id="mainName">Mat1yha_</div>
+    <div class="member-role" id="mainRole">Основатель студии, руководитель и босс</div>
+    <div class="member-desc" id="mainDesc">Создатель Radiate Radiactivity. Руководит студией, принимает ключевые решения и задаёт направление развития.</div>
+
+    <div class="controls">
+      <button class="about-btn" id="aboutBtn">О себе</button>
+      <button class="home-btn" onclick="location.href='index.html'">На главную</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <div class="modal-close" id="modalClose" aria-label="Закрыть">✕</div>
+    <div class="modal-header">
+      <img src="" class="modal-photo" id="modalPhoto" alt="">
+      <div>
+        <div class="modal-title" id="modalTitle">Имя</div>
+        <div class="modal-role" id="modalRole">Роль</div>
+      </div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+  const members = [
+    {
+      id: "mat1yha",
+      photo: "img/matvey_logo.png",
+      name: "Mat1yha_",
+      role: "Основатель студии, руководитель и босс",
+      short: "Создатель Radiate Radiactivity. Руководит студией, принимает ключевые решения и задаёт направление развития.",
+      about: `Я — Mat1yha_, основатель и руководитель Radiate Radiactivity. С нуля собрал студию, определил её стиль, подход и цели. Отвечаю за стратегию, финальные решения по проектам, формирование команды и общее направление развития.
+
+Моя задача — чтобы каждая игра студии чувствовалась живой, честной и сделанной с характером. Я контролирую ключевые этапы разработки, участвую в геймдизайне, визуальной концепции и постоянно думаю о том, как сделать наши проекты сильнее и узнаваемее.
+
+Если хочешь обсудить сотрудничество, издательство или стратегию — пиши.`
+    },
+    {
+      id: "a1ryspace",
+      photo: "img/a1ryspace_logo.png",
+      name: "A1ryspace (Danik)",
+      role: "Геймдизайн, визуал, идеи",
+      short: "Отвечает за идеи, визуальный стиль и геймдизайн. Помогает формировать лицо проектов.",
+      about: `A1ryspace — Даник, наш главный генератор идей и визуальных решений. Он превращает абстрактные мысли в конкретные концепции, подбирает референсы и формирует визуальный язык проекта.
+
+Даник работает над атмосферой, подачей и тем, как игрок будет чувствовать мир. Он тесно взаимодействует с художниками и программистами, чтобы идея не терялась при реализации. Его подход — экспериментальный: много прототипов, быстрых итераций и визуальных тестов.
+
+Если хочешь обсудить визуальную концепцию, референсы или идеи — Даник всегда рад поделиться мыслями и помочь с референсами.`
+    },
+    {
+      id: "valeriy",
+      photo: "img/valeriy.png",
+      name: "Valeriy",
+      role: "Группа поддержки и мотивация",
+      short: "Поддержка команды, мотивация, моральный бустер. Помогает не выгореть и не сдаться.",
+      about: `Valeriy — наша группа поддержки и моральный бустер. Он следит за тем, чтобы команда не выгорала, поддерживает атмосферу и помогает переживать сложные этапы разработки.
+
+Его вклад — в коммуникации, организации внутренних встреч, визуальной подаче идей и просто в том, чтобы напомнить: мы делаем это вместе. Валера умеет поднимать настроение и помогает команде сохранять фокус и мотивацию.
+
+Если нужна поддержка по презентациям, визуальной подаче или просто разговор — Валера всегда рядом.`
+    }
+  ];
+
+  let idx = 0;
+
+  const mainPhoto = document.getElementById("mainPhoto");
+  const mainName = document.getElementById("mainName");
+  const mainRole = document.getElementById("mainRole");
+  const mainDesc = document.getElementById("mainDesc");
+  const miniLeft = document.getElementById("miniLeft");
+  const miniRight = document.getElementById("miniRight");
+
+  const aboutBtn = document.getElementById("aboutBtn");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  const modal = document.getElementById("modal");
+  const modalPhoto = document.getElementById("modalPhoto");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalRole = document.getElementById("modalRole");
+  const modalBody = document.getElementById("modalBody");
+  const modalClose = document.getElementById("modalClose");
+
+  function render(){
+    const main = members[idx];
+    const left = members[(idx - 1 + members.length) % members.length];
+    const right = members[(idx + 1) % members.length];
+
+    mainPhoto.src = main.photo;
+    mainPhoto.alt = main.name;
+    mainName.textContent = main.name;
+    mainRole.textContent = main.role;
+    mainDesc.textContent = main.short;
+
+    miniLeft.querySelector("img").src = left.photo;
+    miniLeft.querySelector("img").alt = left.name;
+    miniLeft.querySelector(".mini-name").textContent = left.name;
+
+    miniRight.querySelector("img").src = right.photo;
+    miniRight.querySelector("img").alt = right.name;
+    miniRight.querySelector(".mini-name").textContent = right.name;
+
+    miniLeft.style.opacity = "0.55";
+    miniRight.style.opacity = "0.55";
+    miniLeft.style.filter = "hue-rotate(6deg) saturate(1.05) blur(1px) drop-shadow(0 8px 20px rgba(216,107,255,0.02))";
+    miniRight.style.filter = "hue-rotate(6deg) saturate(1.05) blur(1px) drop-shadow(0 8px 20px rgba(216,107,255,0.02))";
+  }
+
+  function animateSwitch(direction){
+    const shift = direction * 28;
+    miniLeft.style.transition = "transform 420ms cubic-bezier(.2,.9,.2,1), opacity 420ms ease";
+    miniRight.style.transition = "transform 420ms cubic-bezier(.2,.9,.2,1), opacity 420ms ease";
+    miniLeft.style.transform = `translateY(-50%) scale(0.86) translateX(${shift}px)`;
+    miniRight.style.transform = `translateY(-50%) scale(0.86) translateX(${shift}px)`;
+    setTimeout(()=> {
+      miniLeft.style.transform = "translateY(-50%) scale(0.86) translateX(0)";
+      miniRight.style.transform = "translateY(-50%) scale(0.86) translateX(0)";
+    }, 220);
+  }
+
+  function nextMember(){
+    idx = (idx + 1) % members.length;
+    animateSwitch(1);
+    setTimeout(render, 160);
+  }
+  function prevMember(){
+    idx = (idx - 1 + members.length) % members.length;
+    animateSwitch(-1);
+    setTimeout(render, 160);
+  }
+
+  function openAbout(){
+    const m = members[idx];
+    modalPhoto.src = m.photo;
+    modalTitle.textContent = m.name;
+    modalRole.textContent = m.role;
+    modalBody.textContent = m.about;
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden","false");
+    modalClose.focus();
+  }
+  function closeModal(){
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden","true");
+  }
+
+  nextBtn.addEventListener("click", nextMember);
+  prevBtn.addEventListener("click", prevMember);
+  aboutBtn.addEventListener("click", openAbout);
+  modalClose.addEventListener("click", closeModal);
+  modal.addEventListener("click", (e)=> { if(e.target === modal) closeModal(); });
+  document.addEventListener("keydown", (e)=> {
+    if(e.key === "Escape") closeModal();
+    if(e.key === "ArrowRight") nextMember();
+    if(e.key === "ArrowLeft") prevMember();
+  });
+
+  render();
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
